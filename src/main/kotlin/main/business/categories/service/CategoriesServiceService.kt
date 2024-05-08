@@ -46,7 +46,7 @@ class CategoriesServiceService : CategoriesServiceInt {
         category.updated = LocalDateTime.now()
         category.created = editCategoryDto.created
 
-        categoriesRepo.persist(category)
+        categoriesRepo.persistAndFlush(category)
 
 
         return category

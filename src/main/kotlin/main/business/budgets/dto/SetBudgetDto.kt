@@ -1,11 +1,14 @@
 package main.business.budgets.dto
 
-import java.util.*
+import main.business.budgets.enums.BudgetType
+import java.time.LocalDate
 
 class SetBudgetDto {
-
+    val id : Long ? = null
     val name: String ? = null
-    val value : Double ? = null
-    val endDate : Date? = null
-    val startDate : Date? = null
+    val setAmount : Double ? = null
+    val date : LocalDate? = LocalDate.now()
+
+    val budgetType : BudgetType ? = null
+
 }

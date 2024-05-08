@@ -2,9 +2,9 @@ package main.business.transactions.repo
 import main.business.transactions.enums.TransactionType
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntityBase
 import jakarta.persistence.*
+import main.business.budgets.repo.Budget
 import main.business.categories.repo.Category
 import java.io.Serializable
-import java.math.BigDecimal
 import java.time.LocalDateTime
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
@@ -21,13 +21,16 @@ class Transaction : PanacheEntityBase, Serializable {
     var userId: Long? = null
 
     @Column(name = "amount")
-    var amount: BigDecimal? = null
+    var amount: Double? = null
 
     @Column(name = "description")
     var description: String? = null
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "budget_id")
+    var budget: Budget? = null
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     var category: Category? = null
 

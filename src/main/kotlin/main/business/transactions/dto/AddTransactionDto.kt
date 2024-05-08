@@ -2,14 +2,14 @@ package main.business.transactions.dto
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import main.business.budgets.repo.Budget
 import main.business.transactions.enums.TransactionType
 import main.business.categories.repo.Category
 
 import java.io.Serializable
-import java.math.BigDecimal
 import java.time.LocalDateTime
 
-class CreateTransactionDto: Serializable {
+class AddTransactionDto: Serializable {
     @NotBlank
     var id: Long? = null
 
@@ -17,11 +17,12 @@ class CreateTransactionDto: Serializable {
     var userId: Long? = null
 
     @NotNull
-    var amount: BigDecimal? = null
+    var amount: Double? = null
 
 
     var description: String? = null
 
+    var budget: Budget? = null
 
     var category: Category? = null
 

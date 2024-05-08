@@ -4,66 +4,151 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
-import main.business.transactions.dto.CreateTransactionDto
+import main.business.budgets.repo.BudgetRepo
+import main.business.budgets.service.BudgetService
+import main.business.categories.repo.CategoriesRepo
+import main.business.transactions.dto.AddTransactionDto
 import main.business.transactions.dto.EditTransactionDto
+import main.business.transactions.dto.SetBudgetForTransactionDto
+import main.business.transactions.dto.SetCategoryForTransactionDto
 import main.business.transactions.enums.TransactionType
 import main.business.transactions.repo.Transaction
 import main.business.transactions.repo.TransactionsRepo
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @ApplicationScoped
 class TransactionService : TransactionServiceInt {
+
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
     @Inject
     private lateinit var transactionsRepo: TransactionsRepo
 
+    @Inject
+    private lateinit var budgetService: BudgetService
+
+    @Inject
+    private lateinit var budgetRepo: BudgetRepo
+
+    @Inject
+    private lateinit var categoriesRepo: CategoriesRepo
+
     @Transactional
-    override fun createTransaction(createTransactionDto: CreateTransactionDto): Transaction {
-        val transaction = Transaction()
+    override fun addTransaction(addTransactionDto: AddTransactionDto): Transaction {
 
-        transaction.userId = createTransactionDto.userId
-        transaction.amount = createTransactionDto.amount
-        transaction.description = createTransactionDto.description
-        transaction.category = createTransactionDto.category
-        transaction.date = createTransactionDto.date
+        logger.info("About adding transaction")
+        try {
+            val transaction = Transaction()
 
-        transaction.transactionType = createTransactionDto.transactionType
-        transactionsRepo.persist(transaction)
+            transaction.userId = addTransactionDto.userId
+            transaction.amount = addTransactionDto.amount
+            transaction.description = addTransactionDto.description
+            transaction.category = addTransactionDto.category
+            transaction.date = addTransactionDto.date
+            transaction.budget = addTransactionDto.budget
 
-        return transaction
+            transaction.transactionType = addTransactionDto.transactionType
+
+            if (addTransactionDto.budget != null) {
+                val budgetId = addTransactionDto.budget
+
+                val budget = budgetService.getBudgetById(budgetId?.id!!)
+                if (addTransactionDto.transactionType == TransactionType.INCOME){
+                    budget.remainingAmount = transaction.amount?.plus(addTransactionDto.amount!!)
+                } else {
+                    budget.remainingAmount = addTransactionDto.amount?.minus(transaction.amount!!)
+                }
+            }
+            transactionsRepo.persist(transaction)
+
+            return transaction
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to add transaction: ${e.message}", e)
+        }
     }
 
     override fun getAllTransactions(): List<Transaction> {
-        return transactionsRepo.listAll()
+        try {
+            return transactionsRepo.listAll()
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to retrieve all transactions: ${e.message}", e)
+        }
     }
 
-    override fun getTransactionsByType(type : TransactionType): List<Transaction> {
-        val transactions : List<Transaction> = getAllTransactions()
-       val transactionsOfType = transactions.filter{ it.transactionType == type}
+    override fun getTransactionsByType(type: TransactionType): List<Transaction> {
+        try {
+            val transactions: List<Transaction> = getAllTransactions()
+            return transactions.filter { it.transactionType == type }
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to retrieve transactions by type: ${e.message}", e)
+        }
+    }
 
-        return transactionsOfType
+    override fun getTransactionsByBudget(budgetId: Long): List<Transaction> {
+        return getAllTransactions().filter { it.budget?.id == budgetId }
+    }
+
+    @Transactional
+    override fun setBudgetForTransaction(setBudgetForTransactionDto: SetBudgetForTransactionDto) {
+        try {
+            val transaction = transactionsRepo.findById(setBudgetForTransactionDto.transactionId!!)
+
+            val budget = budgetRepo.findById(setBudgetForTransactionDto.budgetId!!)
+
+            transaction?.budget = budget
+            transactionsRepo.persistAndFlush(transaction!!)
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to set budget for transaction: ${e.message}", e)
+        }
+    }
+
+    @Transactional
+    override fun setCategoryForTransaction(setCategoryForTransactionDto: SetCategoryForTransactionDto) {
+        try {
+            val transaction = transactionsRepo.findById(setCategoryForTransactionDto.transactionId!!)
+
+            val category = categoriesRepo.findById(setCategoryForTransactionDto.categoryId!!)
+
+            transaction?.category = category
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to set budget for transaction: ${e.message}", e)
+        }
     }
 
     override fun getTransactionByID(id: Long): Transaction {
-        return transactionsRepo.findById(id) ?: throw NotFoundException("Transaction not found with ID: $id")
+        try {
+            return transactionsRepo.findById(id) ?: throw NotFoundException("Transaction not found with ID: $id")
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to retrieve transaction by ID: $id - ${e.message}", e)
+        }
     }
 
     override fun editTransaction(editTransactionDto: EditTransactionDto): Transaction {
-        val transaction = getTransactionByID(editTransactionDto.id!!)
+        try {
+            val transaction = getTransactionByID(editTransactionDto.id!!)
 
-        transaction.userId = editTransactionDto.userId
-        transaction.amount = editTransactionDto.amount
-        transaction.description = editTransactionDto.description
-        transaction.category = editTransactionDto.category
-        transaction.date = editTransactionDto.date
-        transaction.transactionType = editTransactionDto.transactionType
-        transactionsRepo.persist(transaction)
+            transaction.userId = editTransactionDto.userId
+            transaction.amount = editTransactionDto.amount
+            transaction.description = editTransactionDto.description
+            transaction.category = editTransactionDto.category
+            transaction.date = editTransactionDto.date
+            transaction.transactionType = editTransactionDto.transactionType
+            transactionsRepo.persistAndFlush(transaction)
 
-        return transaction
-
+            return transaction
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to edit transaction: ${e.message}", e)
+        }
     }
 
-    override fun deleteTransaction(id:Long): String {
-        val transaction = getTransactionByID(id)
-        transactionsRepo.delete(transaction)
-        return "Deleted successfully"
+    override fun deleteTransaction(id: Long): String {
+        try {
+            val transaction = getTransactionByID(id)
+            transactionsRepo.delete(transaction)
+            return "Deleted successfully"
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to delete transaction with ID: $id - ${e.message}", e)
+        }
     }
 }

@@ -4,9 +4,7 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import main.business.transactions.dto.CreateTransactionDto
-import main.business.transactions.dto.EditTransactionDto
-import main.business.transactions.dto.TransactionDto
+import main.business.transactions.dto.*
 import main.business.transactions.enums.TransactionType
 import main.business.transactions.service.transactions.TransactionServiceInt
 import org.slf4j.Logger
@@ -20,7 +18,7 @@ import java.util.stream.Collectors
 
 class TransactionsRoute : TransactionsInt {
     @Inject
-    private lateinit var service: TransactionServiceInt
+    private lateinit var transactionService: TransactionServiceInt
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -29,8 +27,8 @@ class TransactionsRoute : TransactionsInt {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    override fun createTransaction(createTransactionDto:CreateTransactionDto): Response {
-        val transactionDto = service.createTransaction(createTransactionDto)
+    override fun addTransaction(addTransactionDto:AddTransactionDto): Response {
+        val transactionDto = transactionService.addTransaction(addTransactionDto)
 
         logger.info("Request to create a new Transaction {}", transactionDto)
 
@@ -40,10 +38,34 @@ class TransactionsRoute : TransactionsInt {
             .build()
     }
 
+    @PUT
+    @Path("/set-budget")
+    @Consumes(MediaType.APPLICATION_JSON)
+    override fun setBudgetForTransaction(setBudgetForTransactionDto: SetBudgetForTransactionDto): Response {
+        try {
+            transactionService.setBudgetForTransaction(setBudgetForTransactionDto)
+            return Response.ok().build()
+        } catch (e: Exception) {
+            return Response.serverError().entity("Failed to set budget for transaction: ${e.message}").build()
+        }
+    }
+
+    @PUT
+    @Path("/set-category")
+    @Consumes(MediaType.APPLICATION_JSON)
+    override fun setCategoryForTransaction(setCategoryForTransactionDto: SetCategoryForTransactionDto): Response {
+        try {
+            transactionService.setCategoryForTransaction(setCategoryForTransactionDto)
+            return Response.ok().build()
+        } catch (e: Exception) {
+            return Response.serverError().entity("Failed to set budget for transaction: ${e.message}").build()
+        }
+    }
+
     @GET
     @Path("/{id}")
     override fun getTransaction(@PathParam("id") id: Long): Response {
-        val transaction = service.getTransactionByID(id)
+        val transaction = transactionService.getTransactionByID(id)
         val transactionDto = modelMapper.map(transaction, TransactionDto::class.java)
 
         return Response.ok(transactionDto).build()
@@ -52,7 +74,7 @@ class TransactionsRoute : TransactionsInt {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     override fun editTransaction(editTransactionDto:EditTransactionDto): Response {
-        val transaction = service.editTransaction(editTransactionDto)
+        val transaction = transactionService.editTransaction(editTransactionDto)
         val transactionDto = modelMapper.map(transaction, TransactionDto::class.java)
         logger.info("response for edit Post {}", transactionDto)
 
@@ -60,7 +82,7 @@ class TransactionsRoute : TransactionsInt {
     }
     @DELETE
     override fun deleteTransaction(@PathParam("id") id: Long): Response {
-        val deletedTransaction = service.deleteTransaction(id)
+        val deletedTransaction = transactionService.deleteTransaction(id)
 
 
         return Response.ok(deletedTransaction).build()
@@ -69,7 +91,7 @@ class TransactionsRoute : TransactionsInt {
     @GET
     override fun getAllTransactions(): Response {
         logger.info("Request to get all Transactions")
-        val transactions = service.getAllTransactions()
+        val transactions = transactionService.getAllTransactions()
 
         val dtos = transactions
             .stream()
@@ -91,7 +113,7 @@ class TransactionsRoute : TransactionsInt {
             return Response.status(Response.Status.BAD_REQUEST).entity("Invalid transaction type").build()
         }
 
-        val transactions = service.getTransactionsByType(transactionType)
+        val transactions = transactionService.getTransactionsByType(transactionType)
 
         val dtos = transactions
             .stream()
@@ -99,6 +121,21 @@ class TransactionsRoute : TransactionsInt {
             .collect(Collectors.toList())
         logger.info("response for get Transactions by type {}", dtos)
 
+        return Response.ok(dtos).build()
+    }
+
+
+    @GET
+    @Path("get-by-budget/{budgetId}")
+    override fun getTransactionsByBudget(@PathParam("budgetId") budgetId: Long): Response {
+        logger.info("Request to get all Transactions by Budget ID ::->$budgetId")
+
+        val transactions = transactionService.getTransactionsByBudget(budgetId)
+
+        val dtos = transactions
+            .stream()
+            .map { modelMapper.map(it, TransactionDto::class.java) }
+            .collect(Collectors.toList())
         return Response.ok(dtos).build()
     }
 

@@ -1,6 +1,7 @@
 package main.business.categories.repo
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntityBase
 import jakarta.persistence.*
+import main.business.transactions.repo.Transaction
 import java.time.LocalDateTime
 
 @Entity
@@ -12,7 +13,6 @@ class Category : PanacheEntityBase  {
 
     @Column(name = "name")
     var name: String? = null
-
 
     @Column(name = "description")
     var description: String? = null
@@ -28,4 +28,8 @@ class Category : PanacheEntityBase  {
 
     @Version
     val version: Long = 0
+
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var transactions: MutableList<Transaction> = mutableListOf()
+
 }
