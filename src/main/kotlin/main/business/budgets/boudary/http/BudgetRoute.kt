@@ -6,18 +6,19 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import main.business.budgets.dto.SetBudgetDto
+import main.business.budgets.service.BudgetInt
 import java.util.*
 
 
 @Path("/tracker/categories")
 @Produces(MediaType.APPLICATION_JSON)
-class BoundaryRoute : BoundaryInt {
+class BudgetRoute : BudgetRouteInt {
 
     @Inject
-    private lateinit var boundaryService : BoundaryInt
+    private lateinit var budgetService : BudgetInt
 
     override fun setBudget(setBudgetDto: SetBudgetDto): Response {
-        val budget = boundaryService.setBudget(setBudgetDto)
+        val budget = budgetService.setBudget(setBudgetDto)
 
         return Response.status(Response.Status.CREATED)
             .entity(budget)
