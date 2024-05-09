@@ -15,7 +15,6 @@ import java.util.stream.Collectors
 
 @Path("/tracker/transactions")
 @Produces(MediaType.APPLICATION_JSON)
-
 class TransactionsRoute : TransactionsInt {
     @Inject
     private lateinit var transactionService: TransactionServiceInt

@@ -50,16 +50,7 @@ class TransactionService : TransactionServiceInt {
 
             transaction.transactionType = addTransactionDto.transactionType
 
-            if (addTransactionDto.budget != null) {
-                val budgetId = addTransactionDto.budget
 
-                val budget = budgetService.getBudgetById(budgetId?.id!!)
-                if (addTransactionDto.transactionType == TransactionType.INCOME){
-                    budget.remainingAmount = transaction.amount?.plus(addTransactionDto.amount!!)
-                } else {
-                    budget.remainingAmount = addTransactionDto.amount?.minus(transaction.amount!!)
-                }
-            }
             transactionsRepo.persist(transaction)
 
             return transaction
@@ -90,14 +81,20 @@ class TransactionService : TransactionServiceInt {
     }
 
     @Transactional
-    override fun setBudgetForTransaction(setBudgetForTransactionDto: SetBudgetForTransactionDto) {
+    override fun setBudgetForTransaction(setBudgetForTransactionDto: SetBudgetForTransactionDto) : Transaction {
         try {
-            val transaction = transactionsRepo.findById(setBudgetForTransactionDto.transactionId!!)
+            val transaction = transactionsRepo.findById(setBudgetForTransactionDto.transactionId!!) ?: throw NotFoundException("No transaction found with this ID ::-> ${setBudgetForTransactionDto.transactionId}")
 
-            val budget = budgetRepo.findById(setBudgetForTransactionDto.budgetId!!)
 
-            transaction?.budget = budget
-            transactionsRepo.persistAndFlush(transaction!!)
+                val budgetForSum = budgetService.getBudgetById(setBudgetForTransactionDto.budgetId!!)
+                if (transaction.transactionType == TransactionType.INCOME){
+                    budgetForSum.remainingAmount = budgetForSum.remainingAmount?.plus(transaction.amount!!)
+                } else {
+                    budgetForSum.remainingAmount = budgetForSum.remainingAmount?.minus(transaction.amount!!)
+                }
+            transaction.budget = budgetForSum
+            transactionsRepo.persistAndFlush(transaction)
+            return transaction
         } catch (e: Exception) {
             throw RuntimeException("Failed to set budget for transaction: ${e.message}", e)
         }
@@ -120,7 +117,7 @@ class TransactionService : TransactionServiceInt {
         try {
             return transactionsRepo.findById(id) ?: throw NotFoundException("Transaction not found with ID: $id")
         } catch (e: Exception) {
-            throw RuntimeException("Failed to retrieve transaction by ID: $id - ${e.message}", e)
+            throw RuntimeException("Failed to retrieve transaction by ID::-> $id - ${e.message}", e)
         }
     }
 

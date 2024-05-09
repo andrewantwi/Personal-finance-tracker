@@ -22,7 +22,8 @@ interface TransactionServiceInt {
 
     fun getTransactionsByBudget(budgetId : Long) : List<Transaction>
 
-    fun setBudgetForTransaction(setBudgetForTransactionDto: SetBudgetForTransactionDto)
+    fun setBudgetForTransaction(setBudgetForTransactionDto: SetBudgetForTransactionDto) : Transaction
+    
 
     fun setCategoryForTransaction(setCategoryForTransactionDto: SetCategoryForTransactionDto)
 }

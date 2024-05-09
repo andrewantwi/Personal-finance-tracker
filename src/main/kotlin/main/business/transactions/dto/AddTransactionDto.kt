@@ -19,7 +19,6 @@ class AddTransactionDto: Serializable {
     @NotNull
     var amount: Double? = null
 
-
     var description: String? = null
 
     var budget: Budget? = null
@@ -31,7 +30,6 @@ class AddTransactionDto: Serializable {
 
 
     var transactionType: TransactionType? = null
-
 
 
     val version: Long = 0
