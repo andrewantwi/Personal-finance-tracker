@@ -3,6 +3,7 @@ package main.business.user.service
 import com.arjuna.ats.arjuna.logging.tsLogger.logger
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
 import main.business.user.dto.AddUserDto
 import main.business.user.dto.EditUserDto
@@ -10,10 +11,13 @@ import main.business.user.repo.User
 import main.business.user.repo.UserRepo
 import java.time.LocalDate
 
+
+@Transactional
 @ApplicationScoped
 class UserService : UserServiceInt {
     @Inject
     private lateinit var userRepo: UserRepo
+
 
     override fun addUser(addUserDto: AddUserDto): User {
 
@@ -40,8 +44,6 @@ class UserService : UserServiceInt {
             user.userEmail = editUserDto.userEmail
             user.userName = editUserDto.userName
             user.updated = LocalDate.now()
-
-
             return user
         } catch (e: Exception) {
             throw RuntimeException("Failed to edit user: ${e.message}", e)

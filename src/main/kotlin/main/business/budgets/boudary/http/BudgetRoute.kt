@@ -28,6 +28,7 @@ class BudgetRoute : BudgetRouteInt {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     override fun setBudget(setBudgetDto: SetBudgetDto): Response {
+        logger.info("About to make request to set budget")
         val budget = budgetService.setBudget(setBudgetDto)
 
         return Response.status(Response.Status.CREATED)
@@ -38,6 +39,7 @@ class BudgetRoute : BudgetRouteInt {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     override fun editBudget(setBudgetDto: SetBudgetDto): Response {
+        logger.info("Request to edit budget")
         val budget = budgetService.editBudget(setBudgetDto)
         val budgetDto = modelMapper.map(budget, BudgetDto::class.java)
         logger.info("response for edit Budget {}", budgetDto)
@@ -48,6 +50,7 @@ class BudgetRoute : BudgetRouteInt {
     @GET
     @Path("/{id}")
     override fun getBudgetById(@PathParam("id") id: Long): Response {
+        logger.info("Request to get budget")
         val budget = budgetService.getBudgetById(id)
         val budgetDto = modelMapper.map(budget, BudgetDto::class.java)
 
@@ -57,6 +60,7 @@ class BudgetRoute : BudgetRouteInt {
 
     @GET
     override fun getAllBudgets(): Response {
+        logger.info("Request to get all budgets")
         val budgets = budgetService.getAllBudgets()
         val dtos = budgets
             .stream()

@@ -85,7 +85,6 @@ class TransactionService : TransactionServiceInt {
         try {
             val transaction = transactionsRepo.findById(setBudgetForTransactionDto.transactionId!!) ?: throw NotFoundException("No transaction found with this ID ::-> ${setBudgetForTransactionDto.transactionId}")
 
-
                 val budgetForSum = budgetService.getBudgetById(setBudgetForTransactionDto.budgetId!!)
                 if (transaction.transactionType == TransactionType.INCOME){
                     budgetForSum.remainingAmount = budgetForSum.remainingAmount?.plus(transaction.amount!!)

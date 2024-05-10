@@ -1,5 +1,6 @@
 package main.business.budgets.service
 
+import com.arjuna.ats.arjuna.logging.tsLogger.logger
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
@@ -16,6 +17,7 @@ class BudgetService : BudgetInt {
     @Transactional
     override fun setBudget(setBudgetDto: SetBudgetDto): Budget {
         try {
+            logger.info("About to Set budget")
             val budget = Budget()
 
             budget.name = setBudgetDto.name
@@ -33,6 +35,7 @@ class BudgetService : BudgetInt {
     @Transactional
     override fun editBudget(setBudgetDto: SetBudgetDto): Budget {
         try {
+            logger.info("About to edit ${setBudgetDto.name} with id :::-> ${setBudgetDto.id}")
             val budget = getBudgetById(setBudgetDto.id ?: throw IllegalArgumentException("Budget ID cannot be null"))
 
             budget.name = setBudgetDto.name
@@ -49,8 +52,11 @@ class BudgetService : BudgetInt {
     }
 
     override fun getAllBudgets(): List<Budget> {
+        logger.info("About to get all budgets")
         try {
-            return budgetRepo.listAll()
+            val budgets = budgetRepo.listAll()
+            logger.info("these are the budgets ::-> $budgets")
+            return budgets
         } catch (e: Exception) {
             throw RuntimeException("Failed to retrieve all budgets: ${e.message}", e)
         }
@@ -58,7 +64,9 @@ class BudgetService : BudgetInt {
 
     override fun getBudgetById(id: Long): Budget {
         try {
+
             val budget = budgetRepo.findById(id)
+            logger.info("Budget with id ::-> $id is $budget")
             return budget ?: throw RuntimeException("Budget not found for ID: $id")
         } catch (e: Exception) {
             throw RuntimeException("Failed to retrieve budget by ID: $id - ${e.message}", e)

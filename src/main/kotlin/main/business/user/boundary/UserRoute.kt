@@ -70,6 +70,7 @@ class UserRoute : UserRouteInt {
     }
 
     @DELETE
+    @Path("/{id}")
     override fun deleteUser(@PathParam("id") id: Long): Response {
         val deletedTransaction = userService.deleteUser(id)
 
