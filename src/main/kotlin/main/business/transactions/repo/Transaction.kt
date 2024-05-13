@@ -34,9 +34,6 @@ class Transaction : PanacheEntityBase, Serializable {
     @JoinColumn(name = "category_id")
     var category: Category? = null
 
-    @Column(name = "date")
-    var date: LocalDateTime? = null
-
     @Column(name = "account_id")
     var accountId: Long? = null
 

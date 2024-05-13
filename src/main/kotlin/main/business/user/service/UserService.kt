@@ -1,14 +1,16 @@
 package main.business.user.service
 
-import com.arjuna.ats.arjuna.logging.tsLogger.logger
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
+import main.business.transactions.enums.TransactionType
 import main.business.user.dto.AddUserDto
 import main.business.user.dto.EditUserDto
 import main.business.user.repo.User
 import main.business.user.repo.UserRepo
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 
@@ -18,6 +20,7 @@ class UserService : UserServiceInt {
     @Inject
     private lateinit var userRepo: UserRepo
 
+    private var logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     override fun addUser(addUserDto: AddUserDto): User {
 
@@ -25,9 +28,9 @@ class UserService : UserServiceInt {
         try {
             val user = User()
 
-            user.userName = addUserDto.userName
-            user.userEmail = addUserDto.userEmail
-            user.created= addUserDto.created
+            user.userName = addUserDto.userName!!
+            user.userEmail = addUserDto.userEmail!!
+            user.created = addUserDto.created
 
             userRepo.persist(user)
 
@@ -41,8 +44,8 @@ class UserService : UserServiceInt {
         try {
             val user = getUserById(editUserDto.id!!)
 
-            user.userEmail = editUserDto.userEmail
-            user.userName = editUserDto.userName
+            user.userEmail = editUserDto.userEmail!!
+            user.userName = editUserDto.userName!!
             user.updated = LocalDate.now()
             return user
         } catch (e: Exception) {
@@ -75,4 +78,25 @@ class UserService : UserServiceInt {
             throw RuntimeException("Failed to delete user with ID: $id - ${e.message}", e)
         }
     }
+
+    override fun updateUserAmount(amount: Double, type: TransactionType, userId: Long): User {
+        try {
+            logger.info("about updating user amount")
+
+            val user = getUserById(userId)
+
+            if (type == TransactionType.INCOME) {
+                user.amountReceived += amount
+                user.totalAmount += amount
+            } else if (type == TransactionType.EXPENSE) {
+                user.amountSpent += amount
+                user.totalAmount -= amount
+            }
+            return user
+        } catch (e: Exception) {
+            logger.error("couldn't update user total amount")
+            throw RuntimeException("Failed to update user amount with ID: $userId - ${e.message}", e)
+        }
+    }
+
 }

@@ -19,8 +19,8 @@ class User : PanacheEntityBase {
     var userEmail : String = ""
     var created : LocalDate? = null
     var updated : LocalDate? = null
-    var amountSpent: Long = 0
-    var amountReceived: Long = 0
-    var amountSaved: Long = 0
-    var totalAmount : Long = 0
+    var amountSpent: Double = 0.0
+    var amountReceived: Double = 0.0
+    var amountSaved: Double = 0.0
+    var totalAmount : Double = 0.0
 }

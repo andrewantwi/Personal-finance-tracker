@@ -27,6 +27,8 @@ class TransactionsRoute : TransactionsInt {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     override fun addTransaction(addTransactionDto:AddTransactionDto): Response {
+        logger.info("Request to create a new Transaction")
+
         val transactionDto = transactionService.addTransaction(addTransactionDto)
 
         logger.info("Request to create a new Transaction {}", transactionDto)

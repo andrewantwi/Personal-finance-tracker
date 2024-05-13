@@ -4,9 +4,9 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
-import main.business.budgets.repo.BudgetRepo
 import main.business.budgets.service.BudgetService
 import main.business.categories.repo.CategoriesRepo
+import main.business.categories.service.CategoriesService
 import main.business.transactions.dto.AddTransactionDto
 import main.business.transactions.dto.EditTransactionDto
 import main.business.transactions.dto.SetBudgetForTransactionDto
@@ -14,6 +14,7 @@ import main.business.transactions.dto.SetCategoryForTransactionDto
 import main.business.transactions.enums.TransactionType
 import main.business.transactions.repo.Transaction
 import main.business.transactions.repo.TransactionsRepo
+import main.business.user.service.UserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -29,7 +30,11 @@ class TransactionService : TransactionServiceInt {
     private lateinit var budgetService: BudgetService
 
     @Inject
-    private lateinit var budgetRepo: BudgetRepo
+    private lateinit var categoriesService: CategoriesService
+
+    @Inject
+    private lateinit var userService: UserService
+
 
     @Inject
     private lateinit var categoriesRepo: CategoriesRepo
@@ -41,15 +46,20 @@ class TransactionService : TransactionServiceInt {
         try {
             val transaction = Transaction()
 
+
             transaction.userId = addTransactionDto.userId
             transaction.amount = addTransactionDto.amount
             transaction.description = addTransactionDto.description
-            transaction.category = addTransactionDto.category
-            transaction.date = addTransactionDto.date
-            transaction.budget = addTransactionDto.budget
-
             transaction.transactionType = addTransactionDto.transactionType
-
+            if (addTransactionDto.budgetId!= null){
+                val budget = budgetService.getBudgetById(addTransactionDto.budgetId!!)
+                transaction.budget = budget
+            }
+            if (addTransactionDto.categoryId!= null){
+                val category = categoriesService.getCategoryByID(addTransactionDto.categoryId!!)
+                transaction.category = category
+            }
+            userService.updateUserAmount(addTransactionDto.amount!! , addTransactionDto.transactionType!!, addTransactionDto.userId!!)
 
             transactionsRepo.persist(transaction)
 
@@ -128,7 +138,6 @@ class TransactionService : TransactionServiceInt {
             transaction.amount = editTransactionDto.amount
             transaction.description = editTransactionDto.description
             transaction.category = editTransactionDto.category
-            transaction.date = editTransactionDto.date
             transaction.transactionType = editTransactionDto.transactionType
             transactionsRepo.persistAndFlush(transaction)
 

@@ -1,36 +1,27 @@
 package main.business.transactions.dto
 
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-import main.business.budgets.repo.Budget
+
+import io.smallrye.common.constraint.NotNull
 import main.business.transactions.enums.TransactionType
-import main.business.categories.repo.Category
 
-import java.io.Serializable
-import java.time.LocalDateTime
 
-class AddTransactionDto: Serializable {
-    @NotBlank
-    var id: Long? = null
-
-    @NotBlank
-    var userId: Long? = null
+data class AddTransactionDto(
 
     @NotNull
-    var amount: Double? = null
+    var userId: Long? = null,
 
-    var description: String? = null
+    @NotNull
+    var amount: Double? = null,
 
-    var budget: Budget? = null
+    var description: String? = null,
 
-    var category: Category? = null
+    var budgetId: Long? = null,
 
-
-    var date: LocalDateTime? = null
-
-
-    var transactionType: TransactionType? = null
+    var categoryId: Long?,
 
 
-    val version: Long = 0
-}
+    var transactionType: TransactionType? = null,
+
+
+    val version: Long
+)

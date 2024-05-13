@@ -1,8 +1,8 @@
 package main.business.user.dto
 
-class EditUserDto {
-    var id : Long? = null
-    var userName: String = ""
-    var userEmail: String = ""
-    var accountId : Long? = null
-}
+data class EditUserDto(
+    var id: Long? = null,
+    var userName: String? = null,
+    var userEmail: String? = null,
+    var accountId: Long? = null,
+)

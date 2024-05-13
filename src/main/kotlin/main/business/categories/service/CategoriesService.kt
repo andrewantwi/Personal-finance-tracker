@@ -11,7 +11,7 @@ import main.business.categories.repo.Category
 import java.time.LocalDateTime
 
 @ApplicationScoped
-class CategoriesServiceService : CategoriesServiceInt {
+class CategoriesService : CategoriesServiceInt {
     @Inject
     private lateinit var categoriesRepo: CategoriesRepo
 
