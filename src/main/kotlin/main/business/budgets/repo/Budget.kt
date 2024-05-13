@@ -12,7 +12,7 @@ class Budget : PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    @OneToMany(mappedBy = "budget", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "budget", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var transactions: MutableList<Transaction> = mutableListOf()
 
     @Column(name = "name")

@@ -1,17 +1,17 @@
 package main.business.reminders.repo
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
+import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntityBase
+import jakarta.persistence.*
+import main.business.reminders.enums.ReminderType
+import main.business.transactions.enums.TransactionType
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import java.io.Serializable
 import java.time.LocalDateTime
 import java.util.*
 
 @Entity
-class Reminders {
+class Reminder : PanacheEntityBase, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -33,5 +33,8 @@ class Reminders {
     @Column(name = "updated")
     var updated: LocalDateTime? = null
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type")
+    var reminderType: ReminderType? = null
 
 }

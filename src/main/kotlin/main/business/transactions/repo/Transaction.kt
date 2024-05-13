@@ -1,4 +1,6 @@
 package main.business.transactions.repo
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import main.business.transactions.enums.TransactionType
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntityBase
 import jakarta.persistence.*
@@ -26,10 +28,14 @@ class Transaction : PanacheEntityBase, Serializable {
     @Column(name = "description")
     var description: String? = null
 
+    @JsonManagedReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "budget_id")
     var budget: Budget? = null
 
+    @JsonManagedReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     var category: Category? = null

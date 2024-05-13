@@ -51,6 +51,7 @@ class TransactionsRoute : TransactionsInt {
         }
     }
 
+
     @PUT
     @Path("/set-category")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -81,6 +82,7 @@ class TransactionsRoute : TransactionsInt {
 
         return Response.ok(transactionDto).build()
     }
+
     @DELETE
     override fun deleteTransaction(@PathParam("id") id: Long): Response {
         val deletedTransaction = transactionService.deleteTransaction(id)

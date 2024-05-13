@@ -1,4 +1,5 @@
 package main.business.transactions.dto
+import main.business.categories.repo.Category
 import main.business.transactions.enums.TransactionType
 import java.time.LocalDateTime
 
@@ -13,7 +14,7 @@ class TransactionDto {
     var description: String? = null
 
 
-    var categoryId: Long? = null
+    var category: Category? = null
 
 
     var date: LocalDateTime? = null

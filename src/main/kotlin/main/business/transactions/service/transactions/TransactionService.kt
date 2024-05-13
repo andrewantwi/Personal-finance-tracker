@@ -45,8 +45,6 @@ class TransactionService : TransactionServiceInt {
         logger.info("About adding transaction")
         try {
             val transaction = Transaction()
-
-
             transaction.userId = addTransactionDto.userId
             transaction.amount = addTransactionDto.amount
             transaction.description = addTransactionDto.description
